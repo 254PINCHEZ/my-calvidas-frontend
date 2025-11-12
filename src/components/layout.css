@@ -1,0 +1,81 @@
+/* Layout.css - CALVIDAS Global Layout */
+
+.calvidas-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fafafa;
+  color: #1a1a1a;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+/* Header (Navbar) */
+.layout-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Main Content */
+.layout-main {
+  flex: 1;
+  padding: 2rem 0;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+}
+
+.layout-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* Footer */
+.layout-footer {
+  background-color: #1a1a1a;
+  color: #e2e8f0;
+  padding: 3rem 0 1.5rem;
+  margin-top: auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .layout-main {
+    padding: 1.5rem 0;
+  }
+
+  .layout-container {
+    padding: 0 1rem;
+  }
+
+  .layout-footer {
+    padding: 2.5rem 0 1rem;
+  }
+}
+
+/* Page Fade-in Animation (Optional - for route transitions) */
+.layout-main > .layout-container > * {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Focus styles for accessibility */
+.calvidas-layout a:focus-visible,
+.calvidas-layout button:focus-visible {
+  outline: 2px solid #2c5282;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
