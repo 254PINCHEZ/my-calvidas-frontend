@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./Products.css";
+import Navbar from "../components/navbar";
+import Footer from "../components/footer";
 
 type ProductItem = {
   id: number;
@@ -97,6 +99,8 @@ const Products: React.FC = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="products-page">
       {/* Header Section */}
       <section className="products-hero">
@@ -180,7 +184,7 @@ const Products: React.FC = () => {
           ) : (
             <div className="products-grid">
               {filteredProducts.map((product) => (
-                <div className="product-card" key={product.id} id={`item-${product.id}`}>
+                <div className="product-card" key={product.id}>
                   <div className="product-image-container">
                     <img 
                       src={product.image} 
@@ -248,6 +252,8 @@ const Products: React.FC = () => {
         </div>
       </section>
     </div>
+    <Footer/>
+    </>
   );
 };
 

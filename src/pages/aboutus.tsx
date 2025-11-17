@@ -1,9 +1,14 @@
 import React from 'react';
 import "./AboutUs.css";
 import photo from "../assets/my git photo.jpg"
+import nemxy from "../assets/becky photo.jpeg"
+import Navbar from '../components/navbar';
+import Footer from '../components/footer';
 
 export default function AboutUs() {
   return (
+    <>
+    <Navbar />
     <div className="about-page">
       {/* Hero Section */}
       <section className="about-hero">
@@ -157,7 +162,7 @@ export default function AboutUs() {
                 <h3 className="member-name">Sarah Chen</h3>
                 <p className="member-role">Pastry Chef</p>
                 <p className="member-bio">
-                  A graduate of Le Cordon Bleu, Sarah's delicate touch and artistic vision transform simple 
+                  A graduate of EMBU UNIVERSITY,  delicate touch and artistic vision transform simple 
                   ingredients into extraordinary desserts. Her creations are the perfect sweet conclusion to 
                   our dining experience.
                 </p>
@@ -167,7 +172,7 @@ export default function AboutUs() {
             <div className="team-member">
               <div className="member-image">
                 <img 
-                  src="https://images.unsplash.com/photo-1566554273541-37a9ca77b91f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  src={nemxy}
                   alt="Marcus Rodriguez - Sommelier" 
                   className="member-photo"
                 />
@@ -176,8 +181,8 @@ export default function AboutUs() {
                 <h3 className="member-name">BECKYLOVINE❤️</h3>
                 <p className="member-role">Head Sommelier</p>
                 <p className="member-bio">
-                  BECKYLOVINE our extensive wine collection with expertise gained from years in Bordeaux 
-                  and Napa Valley. His perfect pairings elevate every dish to new heights of flavor harmony.
+                  BECKYLOVINE our extensive wine collection with expertise gained from years in isaak walton embu 
+                  and Napa Valley. Her perfect pairings elevate every dish to new heights of flavor harmony.
                 </p>
               </div>
             </div>
@@ -240,5 +245,7 @@ export default function AboutUs() {
         </div>
       </section>
     </div>
+    <Footer />
+    </>
   );
 }

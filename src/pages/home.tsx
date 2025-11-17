@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/navbar';
 import Footer from '../components/footer'; 
 import './Home.css';
+import Navbar from '../components/navbar';
 
 type MenuItem = {
   id: number;
@@ -79,8 +79,8 @@ const Home: React.FC = () => {
 
   return (
     <div className="page-container">
-      <Navbar />
-
+      
+<Navbar/>
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background">

@@ -1,252 +1,260 @@
-import React, { useState } from "react";
+import React from 'react'
+import Navbar from '../components/navbar'
+import Footer from '../components/footer'
+import { Link, useNavigate } from 'react-router'
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { AuthApi } from '../features/api/Authapi'
+import { Toaster, toast } from 'sonner'
 import "./Register.css";
 
-type RegisterFormData = {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  confirmPassword: string;
-};
+
+type RegisterFormValues = {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  password: string
+  confirmPassword: string
+}
 
 const Register: React.FC = () => {
-  const [form, setForm] = useState<RegisterFormData>({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  });
+  // RTK Query mutation hook for registration
+  const [registerUser, { isLoading }] = AuthApi.useRegisterMutation()
 
-  const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<RegisterFormValues>()
+  const navigate = useNavigate()
 
-  const validate = (): Partial<RegisterFormData> => {
-    const newErrors: Partial<RegisterFormData> = {};
-    
-    if (!form.name.trim()) newErrors.name = "Name is required";
-    
-    if (!form.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email address";
+  // Handle form submission
+  const handleSubmitForm: SubmitHandler<RegisterFormValues> = async (data) => {
+    try {
+      const response = await registerUser(data).unwrap()
+      console.log('Registration successful:', response)
+      // toast.success(response.message)
+      
+      // Navigate to login page after successful registration
+      navigate('/login')
+    } catch (error: any) {
+      console.error('Registration failed:', error)
+      toast.error(error.data?.error || 'Registration failed. Please try again.')
     }
-    
-    if (!form.phone) newErrors.phone = "Phone number is required";
-    
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-    
-    if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    
-    return newErrors;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    // Clear error when user starts typing
-    if (errors[e.target.name as keyof RegisterFormData]) {
-      setErrors({ ...errors, [e.target.name]: undefined });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log("Registration submitted:", form);
-    setSubmitted(true);
-    setIsSubmitting(false);
-  };
-
-  const resetForm = () => {
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    });
-    setSubmitted(false);
-  };
-
-  if (submitted) {
-    return (
-      <div className="register-page">
-        <div className="register-container">
-          <div className="register-success">
-            <div className="success-icon">
-              <svg viewBox="0 0 24 24" width="64" height="64">
-                <path fill="#8B4513" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-            </div>
-            <h2>Welcome to Calvidas Dining, {form.name}!</h2>
-            <p className="success-message">
-              Your account has been successfully created. You can now make reservations and receive exclusive offers.
-            </p>
-            <div className="success-actions">
-              <button onClick={resetForm} className="btn btn-primary">
-                Register Another Account
-              </button>
-              <a href="/" className="btn btn-secondary">
-                Return to Home
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   }
 
+  const password = watch('password')
+
   return (
-    <div className="register-page">
-      <div className="register-container">
-        <div className="register-header">
-          <h1>Create Your Account</h1>
-          <p>Join Calvidas Dining to make reservations and enjoy exclusive benefits</p>
+    <div className="min-h-screen flex flex-col">
+      <Toaster position="top-right" richColors />
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-4 px-4">
+        <div className="bg-white rounded-3xl overflow-hidden w-full max-w-4xl shadow-2xl">
+          <div className="flex flex-col lg:flex-row">
+            {/* Form Section */}
+            <div className="flex-1 flex items-center justify-center p-8">
+              <div className="w-full max-w-96 bg-white rounded-2xl p-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-3xl font-bold text-green-800 mb-1">
+                    Join Calvidas Dining
+                  </h2>
+                  <p className="text-gray-500 text-base">
+                    Create your account
+                  </p>
+                </div>
+                
+                <form className="flex flex-col gap-5" onSubmit={handleSubmit(handleSubmitForm)}>
+                  {/* First Row - First Name & Last Name */}
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label
+                        className="block text-sm font-medium text-gray-700 mb-1.5"
+                        htmlFor="firstName"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        {...register('firstName', { 
+                          required: "First name is required", 
+                          minLength: { value: 2, message: "First name must be at least 2 characters" } 
+                        })}
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        placeholder="First Name"
+                        className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                      />
+                      {errors.firstName && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          {errors.firstName.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label
+                        className="block text-sm font-medium text-gray-700 mb-1.5"
+                        htmlFor="lastName"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        {...register('lastName', { 
+                          required: "Last name is required", 
+                          minLength: { value: 2, message: "Last name must be at least 2 characters" } 
+                        })}
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Last Name"
+                        className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                      />
+                      {errors.lastName && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          {errors.lastName.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Email Field */}
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                      htmlFor="email"
+                    >
+                      Email
+                    </label>
+                    <input
+                      {...register('email', { 
+                        required: "Email is required", 
+                        pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" } 
+                      })}
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Email address"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Phone Number Field */}
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                      htmlFor="phone"
+                    >
+                      Phone Number
+                    </label>
+                    <input
+                      {...register('phone', { 
+                        required: "Phone number is required", 
+                        pattern: { value: /^[0-9]{10,15}$/, message: "Invalid phone number" } 
+                      })}
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      placeholder="Phone Number"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                    />
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        {errors.phone.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Password Field */}
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                      htmlFor="password"
+                    >
+                      Password
+                    </label>
+                    <input
+                      {...register('password', { 
+                        required: "Password is required", 
+                        minLength: { value: 6, message: "Password must be at least 6 characters" } 
+                      })}
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Password"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                    />
+                    {errors.password && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Confirm Password Field */}
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700 mb-1.5"
+                      htmlFor="confirmPassword"
+                    >
+                      Confirm Password
+                    </label>
+                    <input
+                      {...register('confirmPassword', { 
+                        required: "Please confirm your password",
+                        validate: value => value === password || "Passwords do not match"
+                      })}
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      className="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-transparent transition-all duration-300 outline-none focus:border-green-800 focus:ring-2 focus:ring-green-100"
+                    />
+                    {errors.confirmPassword && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-green-800 hover:bg-green-900 text-white px-4 py-4 border-none rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 mt-2 shadow-md hover:shadow-lg w-full"
+                  >
+                    {isLoading ? <span className="loading loading-spinner text-warning"></span> : 'Create Account'}
+                  </button>
+
+                  <div className="flex flex-col gap-2 text-center mt-4">
+                    <Link to="/" className="text-green-800 no-underline flex items-center justify-center gap-1 text-sm hover:text-green-900">
+                      <span role="img" aria-label="home">🏡</span> Go to HomePage
+                    </Link>
+                    <Link to="/login" className="text-amber-600 no-underline flex items-center justify-center gap-1 text-sm hover:text-amber-700">
+                      Already have an account? Login
+                    </Link>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {/* Image Section - You can add an image here later */}
+            <div className="flex-1 flex items-center justify-center bg-blue-50 p-8">
+              <div className="text-center">
+                <div className="w-64 h-64 bg-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-32 h-32 text-green-800" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-green-800 mb-2">Join Our Community</h3>
+                <p className="text-gray-600">Create an account to make reservations and enjoy exclusive benefits</p>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <form className="register-form" onSubmit={handleSubmit} noValidate>
-          <div className="form-group">
-            <label htmlFor="name" className="form-label">
-              Full Name *
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={form.name}
-              onChange={handleChange}
-              className={`form-input ${errors.name ? 'error' : ''}`}
-              placeholder="Enter your full name"
-              required
-            />
-            {errors.name && (
-              <span className="error-message">{errors.name}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              Email Address *
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              placeholder="your.email@example.com"
-              required
-            />
-            {errors.email && (
-              <span className="error-message">{errors.email}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phone" className="form-label">
-              Phone Number *
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={form.phone}
-              onChange={handleChange}
-              className={`form-input ${errors.phone ? 'error' : ''}`}
-              placeholder="0725401081"
-              required
-            />
-            {errors.phone && (
-              <span className="error-message">{errors.phone}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
-              Password *
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              className={`form-input ${errors.password ? 'error' : ''}`}
-              placeholder="Create a password"
-              required
-            />
-            {errors.password && (
-              <span className="error-message">{errors.password}</span>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword" className="form-label">
-              Confirm Password *
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-              placeholder="Confirm your password"
-              required
-            />
-            {errors.confirmPassword && (
-              <span className="error-message">{errors.confirmPassword}</span>
-            )}
-          </div>
-
-          <button 
-            type="submit" 
-            className={`btn btn-primary submit-button ${isSubmitting ? 'submitting' : ''}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <svg className="spinner" viewBox="0 0 24 24" width="20" height="20">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                </svg>
-                Creating Account...
-              </>
-            ) : (
-              <>
-                <svg className="user-icon" viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-                Create Account
-              </>
-            )}
-          </button>
-
-          <div className="login-link">
-            <p>Already have an account? <a href="/login">Sign in here</a></p>
-          </div>
-        </form>
       </div>
+      <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Contact from "./pages/Contact";
 import Home from "./pages/home";
 import AboutUs from "./pages/aboutus";
+import Login from "./pages/login"
 
 function App() {
   const router = createBrowserRouter([
@@ -32,7 +33,14 @@ function App() {
     {
   path: "/meals",
   element: <Products/>
-}
+},
+
+ {
+      path: '/login',
+      element: <Login />
+    }
+
+
   ]);
 
   return (
